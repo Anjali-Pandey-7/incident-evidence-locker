@@ -1,122 +1,72 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import { AuthProvider, useAuth } from "./services/AuthContext";
+import Login from "./pages/Login";
+import IncidentList from "./pages/IncidentList";
+import IncidentForm from "./pages/IncidentForm";
+import "./index.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Main App with simple navigation
+// Java Developer 2 — Day 5
+
+function AppContent() {
+  const { isLoggedIn, user, logout } = useAuth();
+  const [currentPage, setCurrentPage] = useState("list");
+
+  // Show login if not logged in
+  if (!isLoggedIn) {
+    return <Login onLoginSuccess={() => setCurrentPage("list")} />;
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="min-h-screen bg-gray-100">
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      {/* Navigation Bar */}
+      <nav className="bg-blue-700 text-white px-6 py-4 shadow flex justify-between items-center">
+        <h1 className="text-xl font-bold">🔒 Incident Evidence Locker</h1>
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => setCurrentPage("list")}
+            className={`text-sm hover:underline ${currentPage === "list" ? "font-bold" : ""}`}
+          >
+            All Incidents
+          </button>
+          <button
+            onClick={() => setCurrentPage("create")}
+            className={`text-sm hover:underline ${currentPage === "create" ? "font-bold" : ""}`}
+          >
+            + New Incident
+          </button>
+          <span className="text-sm opacity-75">
+            👤 {user?.username}
+          </span>
+          <button
+            onClick={logout}
+            className="text-sm bg-blue-800 px-3 py-1 rounded hover:bg-blue-900"
+          >
+            Logout
+          </button>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </nav>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Page Content */}
+      <main className="max-w-7xl mx-auto py-6 px-4">
+        {currentPage === "list" && (
+          <IncidentList />
+        )}
+        {currentPage === "create" && (
+          <IncidentForm onSuccess={() => setCurrentPage("list")} />
+        )}
+      </main>
+    </div>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+export default App;
